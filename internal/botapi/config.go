@@ -6,7 +6,7 @@ const (
 	// TelegramEndpoint should be formatted to replace Token & Method
 	TelegramEndpoint = "https://api.telegram.org/bot%s/%s"
 	// WebhookMaxConnections to set up webhook with
-	WebhookMaxConnections = 0
+	WebhookMaxConnections = 40
 )
 
 // BotToken is a token retrieved from the BotFather
