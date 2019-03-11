@@ -18,9 +18,9 @@ type Bot struct {
 }
 
 // NewBot create a fresh Bot
-func NewBot(token string) *Bot {
+func NewBot() *Bot {
 	bot := &Bot{
-		Token:  token,
+		Token:  BotToken,
 		client: &http.Client{},
 	}
 

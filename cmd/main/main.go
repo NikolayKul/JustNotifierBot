@@ -1,7 +1,7 @@
 package main
 
-import "JustNotifierBot/internal"
+import botapi "JustNotifierBot/internal"
 
 func main() {
-	botapi.NewBot("")
+	botapi.NewBot()
 }
