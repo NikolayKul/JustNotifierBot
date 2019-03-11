@@ -13,7 +13,8 @@ import (
 
 // Bot represents the API
 type Bot struct {
-	Token  string `json:"token"`
+	Token  string
+	Me     *User
 	client *http.Client
 }
 
@@ -28,8 +29,8 @@ func NewBot() *Bot {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Printf("%#v", user)
 
+	bot.Me = user
 	return bot
 }
 
@@ -58,20 +59,6 @@ func (bot *Bot) Request(method string, params url.Values) (*TelegramResponse, er
 	return tgResp, nil
 }
 
-func decodeResponse(responseBody io.Reader) (*TelegramResponse, error) {
-	data, err := ioutil.ReadAll(responseBody)
-	if err != nil {
-		return nil, err
-	}
-
-	var response TelegramResponse
-	err = json.Unmarshal(data, &response)
-	if err != nil {
-		return nil, err
-	}
-	return &response, nil
-}
-
 func (bot *Bot) getMe() (*User, error) {
 	resp, err := bot.Request("getMe", nil)
 	if err != nil {
@@ -86,4 +73,18 @@ func (bot *Bot) getMe() (*User, error) {
 
 	log.Printf("GetMe -> %#v", user)
 	return &user, nil
+}
+
+func decodeResponse(responseBody io.Reader) (*TelegramResponse, error) {
+	data, err := ioutil.ReadAll(responseBody)
+	if err != nil {
+		return nil, err
+	}
+
+	var response TelegramResponse
+	err = json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+	return &response, nil
 }
