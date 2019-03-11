@@ -11,10 +11,3 @@ const (
 
 // BotToken is a token retrieved from the BotFather
 var BotToken = os.Getenv("JUST_NOTIFIER_BOT_TOKEN")
-
-// UpdateConfig for ReceiveUpdates
-type UpdateConfig struct {
-	Offset  int
-	Limit   int
-	Timeout int
-}
