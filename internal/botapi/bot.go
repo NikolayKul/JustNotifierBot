@@ -14,15 +14,15 @@ import (
 
 // Bot represents the API
 type Bot struct {
-	Token  string
 	Me     *User
+	token  string
 	client *http.Client
 }
 
 // NewBot create a fresh Bot
 func NewBot() *Bot {
 	bot := &Bot{
-		Token:  BotToken,
+		token:  BotToken,
 		client: &http.Client{},
 	}
 
@@ -37,7 +37,7 @@ func NewBot() *Bot {
 
 // Request an endpoint with some params
 func (bot *Bot) Request(method string, params url.Values) (*TelegramResponse, error) {
-	url := fmt.Sprintf(TelegramEndpoint, bot.Token, method)
+	url := fmt.Sprintf(TelegramEndpoint, bot.token, method)
 	log.Printf("Request: %s", url)
 
 	rawResp, err := bot.client.PostForm(url, params)
