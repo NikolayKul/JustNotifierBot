@@ -1,12 +1,12 @@
 package botapi
 
 import (
+	log "JustNotifierBot/internal/logger"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -26,7 +26,7 @@ func NewBot() *Bot {
 
 	user, err := bot.getMe()
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 	}
 	log.Printf("%#v", user)
 
