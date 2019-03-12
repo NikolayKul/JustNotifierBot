@@ -18,7 +18,7 @@ func Printf(format string, v ...interface{}) {
 	logger.Printf(format, v...)
 }
 
-// Fatal log error & exit
+// Fatal calls to Logger
 func Fatal(err error) {
 	logger.Fatal(err)
 }
