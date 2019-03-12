@@ -9,20 +9,19 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 )
 
 // Bot represents the API
 type Bot struct {
 	Me     *User
-	token  string
+	Token  string
 	client *http.Client
 }
 
 // NewBot create a fresh Bot
 func NewBot() *Bot {
 	bot := &Bot{
-		token:  BotToken,
+		Token:  BotToken,
 		client: &http.Client{},
 	}
 
@@ -35,9 +34,23 @@ func NewBot() *Bot {
 	return bot
 }
 
-// Request an endpoint with some params
-func (bot *Bot) Request(method string, params url.Values) (*TelegramResponse, error) {
-	url := fmt.Sprintf(TelegramEndpoint, bot.token, method)
+// SetupWebhook setups a Webhook where Telegram sends Updates to
+func (bot *Bot) SetupWebhook(urlForUpdates string, maxConnections int) (*TelegramResponse, error) {
+	// updatesToReceive := []string{"message", "edited_message", "channel_post", "edited_channel_post"}
+	v := url.Values{}
+	v.Add("url", urlForUpdates)
+	v.Add("max_connections", strconv.Itoa(maxConnections))
+	// v.Add("allowed_updates", strings.Join(updatesToReceive, ","))
+	return bot.request("setWebhook", v)
+}
+
+// RemoveWebhook removes a Webhook
+func (bot *Bot) RemoveWebhook() (*TelegramResponse, error) {
+	return bot.request("setWebhook", url.Values{})
+}
+
+func (bot *Bot) request(method string, params url.Values) (*TelegramResponse, error) {
+	url := fmt.Sprintf(TelegramEndpoint, bot.Token, method)
 	log.Printf("Request: %s", url)
 
 	rawResp, err := bot.client.PostForm(url, params)
@@ -55,48 +68,8 @@ func (bot *Bot) Request(method string, params url.Values) (*TelegramResponse, er
 	return tgResp, tgResp.GetError()
 }
 
-// ReceiveUpdates setups a Webhook and listens to it
-func (bot *Bot) ReceiveUpdates(host string) (UpdateChannel, error) {
-	pattern := fmt.Sprintf(WebhookURL, bot.token)
-	_, err := bot.setupWebhook(host + pattern)
-	if err != nil {
-		return nil, err
-	}
-	return bot.listenToWebhook(pattern), nil
-}
-
-func (bot *Bot) setupWebhook(urlForUpdates string) (*TelegramResponse, error) {
-	updatesToReceive := []string{"message", "edited_message", "channel_post", "edited_channel_post"}
-	v := url.Values{}
-	v.Add("url", urlForUpdates)
-	v.Add("max_connections", strconv.Itoa(WebhookMaxConnections))
-	v.Add("allowed_updates", strings.Join(updatesToReceive, ","))
-	return bot.Request("setWebhook", v)
-}
-
-func (bot *Bot) listenToWebhook(pattern string) UpdateChannel {
-	channel := make(chan Update, 100)
-
-	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
-		bytes, _ := ioutil.ReadAll(r.Body)
-		r.Body.Close()
-
-		var update Update
-		json.Unmarshal(bytes, &update)
-
-		channel <- update
-	})
-
-	return channel
-}
-
-// RemoveUpdates removes a Webhook
-func (bot *Bot) RemoveUpdates() (*TelegramResponse, error) {
-	return bot.Request("setWebhook", url.Values{})
-}
-
 func (bot *Bot) getMe() (*User, error) {
-	resp, err := bot.Request("getMe", nil)
+	resp, err := bot.request("getMe", nil)
 	if err != nil {
 		return nil, err
 	}
