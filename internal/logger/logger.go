@@ -18,6 +18,11 @@ func Printf(format string, v ...interface{}) {
 	logger.Printf(format, v...)
 }
 
+// Fatal log error & exit
+func Fatal(err error) {
+	logger.Fatal(err)
+}
+
 type emptyOutput struct{}
 
 func (o *emptyOutput) Write(p []byte) (n int, err error) {

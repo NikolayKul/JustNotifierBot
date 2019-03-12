@@ -11,7 +11,7 @@ func main() {
 
 	updates, err := bot.ReceiveUpdates("127.0.0.1:80")
 	if err != nil {
-		log.Printf("ReceiveUpdates failed: %s", err.Error())
+		log.Fatal(err)
 	}
 
 	go http.ListenAndServe(":8080", nil)
