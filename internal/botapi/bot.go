@@ -55,8 +55,17 @@ func (bot *Bot) Request(method string, params url.Values) (*TelegramResponse, er
 	return tgResp, tgResp.GetError()
 }
 
-// SetWebhook to the Telegram API
-func (bot *Bot) SetWebhook(urlForUpdates string) (*TelegramResponse, error) {
+// ReceiveUpdates setups a Webhook and listens to it
+func (bot *Bot) ReceiveUpdates(host string) (UpdateChannel, error) {
+	pattern := fmt.Sprintf(WebhookURL, bot.token)
+	_, err := bot.setupWebhook(host + pattern)
+	if err != nil {
+		return nil, err
+	}
+	return bot.listenToWebhook(pattern), nil
+}
+
+func (bot *Bot) setupWebhook(urlForUpdates string) (*TelegramResponse, error) {
 	updatesToReceive := []string{"message", "edited_message", "channel_post", "edited_channel_post"}
 	v := url.Values{}
 	v.Add("url", urlForUpdates)
@@ -65,8 +74,24 @@ func (bot *Bot) SetWebhook(urlForUpdates string) (*TelegramResponse, error) {
 	return bot.Request("setWebhook", v)
 }
 
-// RemoveWebhook if there was any
-func (bot *Bot) RemoveWebhook() (*TelegramResponse, error) {
+func (bot *Bot) listenToWebhook(pattern string) UpdateChannel {
+	channel := make(chan Update, 100)
+
+	http.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
+		bytes, _ := ioutil.ReadAll(r.Body)
+		r.Body.Close()
+
+		var update Update
+		json.Unmarshal(bytes, &update)
+
+		channel <- update
+	})
+
+	return channel
+}
+
+// RemoveUpdates removes a Webhook
+func (bot *Bot) RemoveUpdates() (*TelegramResponse, error) {
 	return bot.Request("setWebhook", url.Values{})
 }
 

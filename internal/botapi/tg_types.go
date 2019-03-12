@@ -38,6 +38,9 @@ type Update struct {
 	EditedChannelPost *Message `json:"edited_channel_post"`
 }
 
+// UpdateChannel for Updates
+type UpdateChannel <-chan Update
+
 // Message in a Chat
 type Message struct {
 	MessageID            int              `json:"message_id"`
